@@ -1,5 +1,7 @@
 import pandas as pd
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from sklearn.feature_extraction.text import CountVectorizer
+
 
 # Define Bias Lexicon
 bias_lexicon = {
@@ -99,55 +101,95 @@ bias_lexicon = {
                               "dedicated fan", "loyalist", "no-nonsense fan", "casual observer", "fairweather follower"]
 }
 
-# Bias Detection Function
+
+# Function: Detect Bias
 def detect_bias(word_freq_df):
-    # Initialize bias count dictionary
+    word_counts = word_freq_df.set_index('word')['frequency'].to_dict()
     bias_counts = {bias_category: 0 for bias_category in bias_lexicon}
 
-    # Iterate through the lexicon and count occurrences
     for bias_category, keywords in bias_lexicon.items():
-        for word in keywords:
-            if word in word_freq_df['word'].values:
-                # Sum the frequency of words in the dataframe
-                bias_counts[bias_category] += word_freq_df[word_freq_df['word'] == word]['frequency'].sum()
+        bias_counts[bias_category] = sum(word_counts.get(word, 0) for word in keywords)
 
     return bias_counts
 
 
-# Sentiment Analysis Function
+# Function: Perform Sentiment Analysis
 def analyze_sentiment(text):
     analyzer = SentimentIntensityAnalyzer()
     sentiment_score = analyzer.polarity_scores(text)
-    return sentiment_score['compound']  # Returns the compound score
+    return sentiment_score['compound']
+
+
+# Function: Sentiment by Bias
+def analyze_sentiment_by_bias(df, bias_lexicon):
+    sentiment_by_bias = {bias_category: {'positive': 0, 'negative': 0, 'neutral': 0} for bias_category in bias_lexicon}
+
+    for _, row in df.iterrows():
+        comment = row['content']
+        sentiment = row['sentiment_category']
+
+        for bias_category, keywords in bias_lexicon.items():
+            if any(keyword in comment.lower() for keyword in keywords):
+                sentiment_by_bias[bias_category][sentiment.lower()] += 1
+
+    return sentiment_by_bias
 
 
 # Load the dataset
-input_csv = 'The_Day_Caitlin_Clark_Showed_Angel_Reese_Who’s_Boss_comments.txt'
-output_csv = 'wnba_analysis_results.csv'
+input_file = 'The_Day_Caitlin_Clark_Showed_Angel_Reese_Who’s_Boss_comments.txt'
+output_file = 'wnba_analysis_sentiment_results.xlsx'
 
-# Read the CSV file
-df = pd.read_csv(input_csv)
+# Read input file as plain text
+try:
+    with open(input_file, "r", encoding="utf-8") as file:
+        lines = file.readlines()
 
-# Perform sentiment analysis on each article
-df['sentiment'] = df['content'].apply(analyze_sentiment)
+    # Convert to DataFrame (each line is a comment)
+    df = pd.DataFrame({"content": [line.strip() for line in lines if line.strip()]})  # Remove empty lines
 
-# Tokenize and create word frequency dataframe
-from sklearn.feature_extraction.text import CountVectorizer
+except Exception as e:
+    print(f"Error reading file: {e}")
+    exit()
 
+# Apply sentiment analysis
+df['sentiment_score'] = df['content'].apply(analyze_sentiment)
+
+# Categorize sentiment into Positive, Neutral, or Negative
+df['sentiment_category'] = df['sentiment_score'].apply(
+    lambda x: 'Positive' if x > 0.05 else 'Negative' if x < -0.05 else 'Neutral')
+
+# Sentiment Analysis Summary
+sentiment_summary = df['sentiment_category'].value_counts().reset_index()
+sentiment_summary.columns = ['Sentiment', 'Count']
+
+# Tokenize and compute word frequency
 vectorizer = CountVectorizer(stop_words='english')
 word_freq_matrix = vectorizer.fit_transform(df['content'])
 
-# Convert word frequency matrix to dataframe
+# Convert matrix to a DataFrame with words as columns
 word_freq_df = pd.DataFrame(word_freq_matrix.toarray(), columns=vectorizer.get_feature_names_out())
 
-# Perform bias detection on the articles
+# Reshape word frequency data to match bias detection function
+word_freq_df = word_freq_df.sum().reset_index()
+word_freq_df.columns = ['word', 'frequency']
+
+# Perform bias detection
 bias_counts = detect_bias(word_freq_df)
 
-# Create a DataFrame to store the results
-analysis_df = pd.DataFrame({'Bias Category': list(bias_counts.keys()),
-                            'Bias Count': list(bias_counts.values())})
+# Analyze sentiment by bias category
+sentiment_by_bias = analyze_sentiment_by_bias(df, bias_lexicon)
 
-# Save the analysis results to a CSV file
-analysis_df.to_csv(output_csv, index=False)
+# Convert bias counts to DataFrame
+bias_df = pd.DataFrame({'Bias Category': list(bias_counts.keys()), 'Bias Count': list(bias_counts.values())})
 
-print(f'Bias and sentiment analysis results saved to {output_csv}')
+# Convert sentiment by bias to DataFrame
+sentiment_by_bias_df = pd.DataFrame.from_dict(sentiment_by_bias, orient='index').reset_index()
+sentiment_by_bias_df.columns = ['Bias Category', 'Positive', 'Negative', 'Neutral']
+
+# Save results to Excel with three sheets (Bias Analysis + Sentiment Analysis + Sentiment by Bias)
+with pd.ExcelWriter(output_file) as writer:
+    bias_df.to_excel(writer, sheet_name='Bias Analysis', index=False)
+    sentiment_summary.to_excel(writer, sheet_name='Sentiment Analysis', index=False)
+    sentiment_by_bias_df.to_excel(writer, sheet_name='Sentiment by Bias', index=False)
+
+print(f'WNBA Bias and sentiment analysis results saved to {output_file}')
