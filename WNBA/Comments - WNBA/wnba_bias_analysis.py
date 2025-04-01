@@ -137,7 +137,7 @@ def analyze_sentiment_by_bias(df, bias_lexicon):
 
 # Load the dataset
 input_file = 'The_Day_Caitlin_Clark_Showed_Angel_Reese_Who’s_Boss_comments.txt'
-output_file = 'wnba_analysis_sentiment_results.xlsx'
+output_file = '../Bias Analysis Model - WNBA/wnba_analysis_sentiment_results.xlsx'
 
 # Read input file as plain text
 try:

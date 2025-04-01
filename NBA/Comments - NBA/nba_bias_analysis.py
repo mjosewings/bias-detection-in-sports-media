@@ -116,7 +116,7 @@ def analyze_sentiment_by_bias(df, bias_lexicon):
 
 # Load the dataset
 input_file = 'LeBron_&_AD_Too_Big_For_Curry_|_Game_1_Lakers_v_Warriors_2023_NBA_Playoffs_comments.txt'
-output_file = 'nba_analysis_sentiment_results.xlsx'
+output_file = '../Bias Analysis Model - NBA/nba_analysis_sentiment_results.xlsx'
 
 # Read input file as plain text
 try:
