@@ -58,7 +58,7 @@ def save_word_frequencies_to_csv(tokens, output_file):
     df.to_csv(output_file, index=False)
 
 # Main logic
-file_path = 'LeBron_&_AD_Too_Big_For_Curry_|_Game_1_Lakers_v_Warriors_2023_NBA_Playoffs_comments.txt'  # Update with your file path
+file_path = 'LeBron_and_AD_Too_Big_For_Curry_Game_1_Lakers_v_Warriors_2023_NBA_Playoffs_comments.txt'  # Update with your file path
 unique_words_csv = 'nba_unique_words.csv'  # Output CSV file for unique words
 word_frequencies_csv = 'nba_word_frequencies.csv'  # Output CSV file for word counts
 
