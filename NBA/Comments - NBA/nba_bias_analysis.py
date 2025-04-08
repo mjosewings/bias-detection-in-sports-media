@@ -116,7 +116,7 @@ def analyze_sentiment_by_bias(df, bias_lexicon):
 
 # Load the dataset
 input_file = 'LeBron_&_AD_Too_Big_For_Curry_|_Game_1_Lakers_v_Warriors_2023_NBA_Playoffs_comments.txt'
-output_file = '../Bias Analysis Model - NBA/nba_analysis_sentiment_results.xlsx'
+output_file = '/Users/jpmclaughlin/PycharmProjects/441Group/bias-detection-in-sports-media1/NBA/Bias Analysis Model - NBA/nba_analysis_sentiment_results.xlsx'
 
 # Read input file as plain text
 try:
@@ -168,7 +168,8 @@ sentiment_by_bias_df.columns = ['Bias Category', 'Positive', 'Negative', 'Neutra
 # Save results to Excel with three sheets (Bias Analysis + Sentiment Analysis + Sentiment by Bias)
 with pd.ExcelWriter(output_file) as writer:
     bias_df.to_excel(writer, sheet_name='Bias Analysis', index=False)
-    sentiment_summary.to_excel(writer, sheet_name='Sentiment Analysis', index=False)
+    df.to_excel(writer, sheet_name='Full Sentiment Data', index=False)
+    df.to_excel(writer, sheet_name='Sentiment Analysis', index=False)
     sentiment_by_bias_df.to_excel(writer, sheet_name='Sentiment by Bias', index=False)
 
 print(f'NBA Bias and sentiment analysis results saved to {output_file}')

@@ -189,7 +189,8 @@ sentiment_by_bias_df.columns = ['Bias Category', 'Positive', 'Negative', 'Neutra
 # Save results to Excel with three sheets (Bias Analysis + Sentiment Analysis + Sentiment by Bias)
 with pd.ExcelWriter(output_file) as writer:
     bias_df.to_excel(writer, sheet_name='Bias Analysis', index=False)
-    sentiment_summary.to_excel(writer, sheet_name='Sentiment Analysis', index=False)
+    df.to_excel(writer, sheet_name='Full Sentiment Data', index=False)
+    df.to_excel(writer, sheet_name='Sentiment Analysis', index=False)
     sentiment_by_bias_df.to_excel(writer, sheet_name='Sentiment by Bias', index=False)
 
 print(f'WNBA Bias and sentiment analysis results saved to {output_file}')
