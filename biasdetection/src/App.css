@@ -1,9 +1,9 @@
 /* Default Variables */
 :root {
-  --primary: #2f00ff;       /* WNBA purple */
-  --secondary: #ff9900e3;     /* Pink accent */
-  --dark: #2c003e;          /* Dark purple */
-  --light: #f9f5ff;         /* Light background */
+  --primary: #2f00ff;       
+  --secondary: #ff9900e3;    
+  --dark: #2c003e;         
+  --light: #f9f5ff;       
   --text: #333333;
   --error: #e63946;
 }

@@ -10,7 +10,7 @@ def get_video_comments(video_id):
     API_KEY = os.getenv("YOUTUBE_API_KEY")
     youtube = build('youtube', 'v3', developerKey=API_KEY)
 
-    comments = []  # ✅ define the list before appending
+    comments = []
 
     try:
         request = youtube.commentThreads().list(

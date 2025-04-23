@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
+/*  LeagueSelector Component - Handles league selection and video URL input */
 function LeagueSelector({ onSelect }) {
   const [step, setStep] = useState('select');
   const [selection, setSelection] = useState('');
@@ -9,11 +10,12 @@ function LeagueSelector({ onSelect }) {
   const [videoUrlSingle, setVideoUrlSingle] = useState('');
   const [validationError, setValidationError] = useState(null);
 
+  /* Function to extract video ID from YouTube URL */
   const extractVideoId = (url) => {
     const match = url.match(/(?:v=|\.be\/)([\w-]{11})/);
     return match ? match[1] : null;
   };
-
+  /* Function to handle league selection and URL validation */
   const handleSelection = async (choice) => {
     setSelection(choice);
     setValidationError(null);
@@ -31,7 +33,8 @@ function LeagueSelector({ onSelect }) {
       onSelect({ league: 'both', videoId_nba: idNBA, videoId_wnba: idWNBA });
       return;
     }
-  
+    
+    /* If single league is selected, validate the URL */
     const videoId = extractVideoId(videoUrlSingle);
     if (!videoId) {
       setValidationError('Invalid YouTube URL format.');
@@ -42,7 +45,7 @@ function LeagueSelector({ onSelect }) {
     onSelect({ league: choice, videoId });
   };
   
-
+  /* Function to handle back navigation */
   const handleBack = () => {
     setStep('select');
     setSelection('');
@@ -52,6 +55,7 @@ function LeagueSelector({ onSelect }) {
     setValidationError(null);
   };
 
+  /* Function to handle video URL input change */
   return (
     <div className="league-selector">
       {step === 'select' && (
@@ -114,7 +118,7 @@ function LeagueSelector({ onSelect }) {
   );
 }
 
-
+/* App Component - Main application component */
 function App() {
   const [visualizations, setVisualizations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -122,9 +126,11 @@ function App() {
   const [selectionData, setSelectionData] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
 
+  /* Effect to fetch visualizations based on selection data */
   useEffect(() => {
     if (!selectionData) return;
   
+    /* Function to fetch visualizations from the backend */
     const fetchVisualizations = async () => {
       try {
         let body;
@@ -141,7 +147,8 @@ function App() {
             videoId: selectionData.videoId,
           };
         }
-  
+        
+        /* Fetch visualizations from the backend API */
         const response = await fetch('http://localhost:5000/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -171,6 +178,7 @@ function App() {
     fetchVisualizations();
   }, [selectionData]);
   
+  /* Function to handle visualization click */
   return (
     <div className="App">
       <header className="App-header">
