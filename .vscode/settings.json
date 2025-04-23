@@ -1,0 +1,6 @@
+{
+    "python.analysis.extraPaths": [
+        "./backend/WNBA/Comments - WNBA",
+        "./backend/NBA/Comments - NBA"
+    ]
+}
